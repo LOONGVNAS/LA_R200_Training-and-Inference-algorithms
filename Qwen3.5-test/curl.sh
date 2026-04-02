@@ -1,0 +1,1 @@
+curl http://112.53.120.78:36666/v1/chat/completions -H "Authorization: Bearer sk-ab674bac964e4e5fbdd130c67949d845b0637c2a089586ce" -H "Content-Type: application/json" -d '{"model": "Qwen3.5-27B", "messages": [{"role": "user", "content": "你好，你是谁？"}]}'
