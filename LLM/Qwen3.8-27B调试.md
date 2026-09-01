@@ -252,8 +252,6 @@ docker run -itd --name="Qwen3.8-27B" --volume /home/aipc/teco/checkpoint:/tecogp
 	jfrog.tecorigin.net/tecotp-docker/release/loongnixserver23.1/loongarch64/vllm:3.2.1-tecovllm3.2.1 /bin/bash
 ```
 
-
-
 ## 容器运行
 
 ```bash
@@ -270,7 +268,7 @@ vllm serve /tecogpfs/models/Qwen3.8-27B \
     --served-model-name Qwen3.8-27B \
     --trust-remote-code \
     --tensor_parallel_size 8 \
-    --port 8888 \
+    --port 12345 \
     --gpu-memory-utilization 0.9 \
     --max_num_seqs 32 \
     --max_model_len 262144 \
@@ -285,3 +283,7 @@ vllm serve /tecogpfs/models/Qwen3.8-27B \
     --compilation_config='{"cudagraph_mode": "FULL_DECODE_ONLY"}'
 ```
 
+> [!NOTE]
+>
+> 这里port参数的值要与创建容器相对应。
+> numa绑定要在3C6000/D 以上规格的服务器进行。
