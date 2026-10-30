@@ -234,7 +234,7 @@ docker run --name=Qwen3_vllm --hostname=ed957cdcc979 --volume /home/aipc/teco/ch
 | `jfrog.tec...:2.3.0-temp`                              | 要运行的镜像名称，这是命令的核心。                           | 是                      |
 | `tail -f /dev/null`                                    | 容器启动后要执行的命令，这里用于让容器保持运行状态。         | 否 (镜像有默认命令)     |
 
-### 实际操作（推荐）
+### 实际操作（旧版参数）
 
 ```bash
 docker run -itd --name="Qwen3.8-27B" --volume /home/aipc/teco/checkpoint:/tecogpfs/models \
@@ -252,7 +252,10 @@ docker run -itd --name="Qwen3.8-27B" --volume /home/aipc/teco/checkpoint:/tecogp
 	jfrog.tecorigin.net/tecotp-docker/release/loongnixserver23.1/loongarch64/vllm:3.2.1-tecovllm3.2.1 /bin/bash
 ```
 
-## 容器运行
+### 新版本参数(晚点补充)
+
+
+## 容器运行(旧版参数)
 
 ```bash
 source /opt/tecoai/setvars.sh
@@ -287,3 +290,52 @@ vllm serve /tecogpfs/models/Qwen3.8-27B \
 >
 > 这里port参数的值要与创建容器相对应。
 > numa绑定要在3C6000/D 以上规格的服务器进行。
+
+### 新版参数（适配331版本SDK）
+
+>[!NOTE]
+>
+> 331驱动
+> http://wb.tecorigin.com:8082/repository/teco-yum-repo/release/loongnix-server/23.1/loongarch64/3.3.1/tecodriver-3.3.1-1.lns23.loongarch64.rpm
+> d791299ee47acbac1ae13afd610975cd
+>
+> 331toolkit 
+> http://wb.tecorigin.com:8082/repository/teco-yum-repo/release/loongnix-server/23.1/loongarch64/3.3.1/tecotoolkit-3.3.1-1.lns23.loongarch64.rpm
+> 8ce1c35848dbcaef38a08bc355fa363c
+> 
+> 331 vllm
+> http://wb.tecorigin.com:8082/repository/teco-docker-tar-repo/release/loongnix-server/23.1/loongarch64/3.3.1/vllm-3.3.1-tecovllm3.3.1.tar
+> 9b95a54b82ee07fb914576c37c6e10d8
+
+```bash
+# 编译相关环境变量：必须在进程启动前设置
+export VLLM_USE_AOT_COMPILE=0
+
+vllm serve /models/Qwen/Qwen3.8-27B \
+  # 1) 模型与加载
+  --served-model-name Qwen3.8-27B \
+  --trust-remote-code \
+  --dtype float16 \
+  --quantization sdaa_wint8 \
+  # 2) 并行与显存
+  --tensor-parallel-size 4 \
+  --gpu-memory-utilization 0.90 \
+  # 3) 上下文与调度
+  --max-model-len 147456 \
+  --max-num-seqs 32 \
+  --max-num-batched-tokens 8192 \
+  --enable-chunked-prefill \
+  # 4) 缓存（KV / 前缀 / 混合架构状态）
+  --kv-cache-dtype fp8_e5m2 \
+  --enable-prefix-caching \
+  --mamba-cache-mode align \
+  # 5) API 行为：工具调用与思考链解析
+  --enable-auto-tool-choice \
+  --tool-call-parser qwen3_coder \
+  --reasoning-parser qwen3 \
+  # 6) 编译与投机解码
+  --compilation-config '{"mode":"VLLM_COMPILE","cudagraph_mode":"FULL_DECODE_ONLY"}' \
+  --speculative-config '{"method":"mtp","num_speculative_tokens":1}' \
+  # 7) 服务端口
+  --port 8080
+```
