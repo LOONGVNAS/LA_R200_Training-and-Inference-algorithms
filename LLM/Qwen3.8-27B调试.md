@@ -186,10 +186,7 @@ Mon Aug 31 18:04:46 2026
 >
 > 安装过程不能出现任何警告和错误
 
-
-
 ## 容器创建与调试
-
 ---
 
 ### 导入镜像
@@ -254,6 +251,9 @@ docker run -itd --name="Qwen3.8-27B" --volume /home/aipc/teco/checkpoint:/tecogp
 
 ### 新版本参数(晚点补充)
 
+```bash
+docker run --name=vllm330 --name="Qwen3.8-27B-N1" --volume /home/aipc/teco/checkpoint/Qwen3.8-27B:/home/Qwen3.8-27B --env=TECO_VISIBLE_DEVICES=all --cap-add=SYS_PTRACE --cap-add=SYS_ADMIN --network=host --privileged --workdir=/data/workspace/zhaohr/teco-modeltest/lm_infer --runtime=runc --detach=true -t 30b671617c3a /bin/bash
+```
 
 ## 容器运行(旧版参数)
 
